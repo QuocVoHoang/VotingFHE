@@ -1,0 +1,13 @@
+{
+  "name": "voting-fhe",
+  "version": "1.0.0",
+  "description": "Encrypted Voting with FHE",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "dotenv": "^16.0.3",
+    "fhevmjs": "^0.1.3"
+  }
+}

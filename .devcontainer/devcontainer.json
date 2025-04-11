@@ -3,7 +3,7 @@
     "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
     "features": {
         "docker-in-docker": "latest",
-        "node": "lts"
+        "node": "18"
     },
     "postCreateCommand": "npm install -g truffle && npm install -g fhevmjs && npm install -g fhevm"
 }
