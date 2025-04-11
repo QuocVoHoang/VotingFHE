@@ -1,32 +1,36 @@
-const ZKProofVerifier = artifacts.require("ZKProofVerifier");
 const EncryptedVoting = artifacts.require("EncryptedVoting");
 
 module.exports = async function (deployer) {
-    console.log("📦 Deployment started...\n");
+    let peakMemory = 0;
+    const updatePeakMemory = () => {
+        peakMemory = Math.max(peakMemory, process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+    };
 
-    const memUsage = () => (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
-
-    console.time("⏱ Total deployment time");
-
-    console.log(`🧠 Memory before deployment: ${memUsage()} MB`);
-
-    // Deploy ZKProofVerifier
-    console.time("🔧 ZKProofVerifier deployment");
-    await deployer.deploy(ZKProofVerifier);
-    const verifier = await ZKProofVerifier.deployed();
-    console.timeEnd("🔧 ZKProofVerifier deployment");
-    console.log(`🧠 Memory after ZKProofVerifier: ${memUsage()} MB\n`);
-
-    // Deploy EncryptedVoting with candidate count = 3
-    console.time("🗳 EncryptedVoting deployment");
-    await deployer.deploy(EncryptedVoting, 3, verifier.address);
+    console.time("Total");
+    console.time("Deployment");
+    await deployer.deploy(EncryptedVoting, 3, 10);
     const voting = await EncryptedVoting.deployed();
-    console.timeEnd("🗳 EncryptedVoting deployment");
-    console.log(`🧠 Memory after EncryptedVoting: ${memUsage()} MB\n`);
+    console.timeEnd("Deployment");
 
-    console.timeEnd("⏱ Total deployment time");
+    console.time("ProofGen");
+    await voting.vote(0);
+    console.timeEnd("ProofGen");
 
-    console.log(`\n✅ Contracts deployed:
-    📍 ZKProofVerifier at ${verifier.address}
-    📍 EncryptedVoting at ${voting.address}`);
+    console.time("Decryption");
+    await voting.getVotes(0);
+    console.timeEnd("Decryption");
+
+    console.timeEnd("Total");
+    updatePeakMemory();
+
+    const total = parseFloat(process.uptime().toFixed(3));
+    const deployment = parseFloat((await web3.eth.getBlock("latest")).timestamp - (await web3.eth.getBlock("earliest")).timestamp) / 1000;
+    const proofGen = parseFloat(process.hrtime()[1] / 1e9).toFixed(3);
+    const decryption = parseFloat(process.hrtime()[1] / 1e9).toFixed(3);
+    const other = (total - deployment - proofGen - decryption).toFixed(3);
+
+    console.log(`Proof Gen: ${proofGen}s`);
+    console.log(`Decryption: ${decryption}s`);
+    console.log(`Other: ${other}s`);
+    console.log(`Peak Memory: ${peakMemory} MB`);
 };
