@@ -1,0 +1,9 @@
+{
+    "name": "VotingZKP",
+    "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu",
+    "features": {
+        "docker-in-docker": "latest",
+        "node": "lts"
+    },
+    "postCreateCommand": "npm install -g truffle && npm install -g fhevmjs && npm install -g fhevm"
+}
